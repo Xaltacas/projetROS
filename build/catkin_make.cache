@@ -1,0 +1,2 @@
+minilab_navigation:minilab_simulation:teleop_controller
+-DCATKIN_DEVEL_PREFIX=/home/polytech/projetROS_ws/devel -DCMAKE_INSTALL_PREFIX=/home/polytech/projetROS_ws/install -G Unix Makefiles

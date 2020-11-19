@@ -1,0 +1,8 @@
+prefix=/home/polytech/projetROS_ws/install
+
+Name: teleop_controller
+Description: Description of teleop_controller
+Version: 0.0.0
+Cflags: 
+Libs: -L${prefix}/lib 
+Requires: 
