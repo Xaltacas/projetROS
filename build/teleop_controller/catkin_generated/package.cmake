@@ -1,6 +1,6 @@
 set(_CATKIN_CURRENT_PACKAGE "teleop_controller")
 set(teleop_controller_VERSION "0.0.0")
-set(teleop_controller_MAINTAINER "polytech <polytech@todo.todo>")
+set(teleop_controller_MAINTAINER "Adrien Piednoel <adrien.piednoel@gmail.com>")
 set(teleop_controller_PACKAGE_FORMAT "2")
 set(teleop_controller_BUILD_DEPENDS "rospy")
 set(teleop_controller_BUILD_EXPORT_DEPENDS "rospy")
