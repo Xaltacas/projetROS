@@ -44,13 +44,41 @@ if __name__ == "__main__":
     xmin, xmax, ymin , ymax = getAOI(data)
 
     print("AOI",xmin, xmax, ymin , ymax)
+
     cropped = data[xmin:xmax,ymin:ymax]
 
-    cv2.imwrite("map.jpg",255-cropped)
-    #cv2.imshow("sacree map",data)
-    #cv2.waitKey(0)
+    height,width = cropped.shape
+    for x in range(height):
+        for y in range(width):
+            if cropped[x][y] == -1:
+                cropped[x][y] = 255
+            elif cropped[x][y] == 0:
+                cropped[x][y] = 0
+            else:
+                cropped[x][y] = 255
 
-    #print(map.type)
-    print(type(map.data))
-    print(len(map.data))
-    print("coucou")
+
+    cv2.imwrite("1-map.jpg",255 -cropped)
+
+    img = np.array(cropped,'uint8')
+
+
+
+    kernel = np.ones((8,8),'uint8')
+
+    img = cv2.dilate(img,kernel)
+
+    cv2.imwrite("2-dilate8.jpg",255 -img)
+    img = cv2.erode(img,kernel)
+
+    cv2.imwrite("3-erode8.jpg",255 -img)
+
+    img = cv2.medianBlur(np.float32(img),3)
+    cv2.imwrite("4-mBlur3.jpg",255 -img)
+
+    kernel = np.ones((10,10),'uint8')
+
+    final = cv2.dilate(img,kernel)
+    cv2.imwrite("5-final.jpg",255 -final)
+
+    print("is oke")
