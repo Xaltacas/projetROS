@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<launch>
+      <include file="$(find minilab_simulation)/launch/minilab_simulation.launch" />
+      <node type="slam_gmapping" pkg="gmapping" name="slam_gmapping" >
+            <param name="delta" value="0.025"/>
+            <param name="xmin" value="-20"/>
+            <param name="xmax" value="20"/>
+            <param name="ymin" value="-20"/>
+            <param name="ymax" value="20"/>
+      </node>
+      <node type="joy_node" pkg="joy" name="joy_node" >
+            <param name="dev" value="/dev/input/js2"/>
+      </node>
+      <node type="from_joy.py" pkg="teleop_controller" name="teleop_joy"/>
+
+</launch>
