@@ -2,4 +2,4 @@
 source_root_dir = '/home/polytech/projetROS_ws/src'
 whitelisted_packages = ''.split(';') if '' != '' else []
 blacklisted_packages = ''.split(';') if '' != '' else []
-underlay_workspaces = '/home/polytech/test_ws/devel;/home/polytech/ws/underlay/devel;/home/polytech/ws/underlay_isolated/install_isolated;/opt/ros/melodic'.split(';') if '/home/polytech/test_ws/devel;/home/polytech/ws/underlay/devel;/home/polytech/ws/underlay_isolated/install_isolated;/opt/ros/melodic' != '' else []
+underlay_workspaces = '/home/polytech/ws/underlay/devel;/home/polytech/ws/underlay_isolated/install_isolated;/opt/ros/melodic'.split(';') if '/home/polytech/ws/underlay/devel;/home/polytech/ws/underlay_isolated/install_isolated;/opt/ros/melodic' != '' else []

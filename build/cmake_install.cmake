@@ -132,6 +132,7 @@ if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for each subdirectory.
   include("/home/polytech/projetROS_ws/build/gtest/cmake_install.cmake")
   include("/home/polytech/projetROS_ws/build/minilab_simulation/cmake_install.cmake")
+  include("/home/polytech/projetROS_ws/build/pathfinding/cmake_install.cmake")
   include("/home/polytech/projetROS_ws/build/teleop_controller/cmake_install.cmake")
   include("/home/polytech/projetROS_ws/build/minilab_navigation/cmake_install.cmake")
 

@@ -6,5 +6,6 @@
 # testing this directory and lists subdirectories to be tested as well.
 subdirs("gtest")
 subdirs("minilab_simulation")
+subdirs("pathfinding")
 subdirs("teleop_controller")
 subdirs("minilab_navigation")
