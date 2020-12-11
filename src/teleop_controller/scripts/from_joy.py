@@ -6,7 +6,6 @@ from sensor_msgs.msg import Joy
 import math
 import time
 import numpy as np
-import keyboard
 
 
 cx = 0
