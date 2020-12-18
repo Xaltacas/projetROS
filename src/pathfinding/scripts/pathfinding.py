@@ -7,6 +7,11 @@ import math
 import time
 import numpy as np
 import cv2
+import prm as algo
+
+
+imageOut = False
+
 
 def getAOI(map):
     height,width = map.shape
@@ -27,7 +32,16 @@ def getAOI(map):
 
     return xmin, xmax, ymin , ymax
 
+def mini2global(pos,xmin, xmax, ymin , ymax):
+    return pos[0] + xmin, pos[1] +ymin
 
+def global2mini(pos,xmin, xmax, ymin , ymax):
+    if( pos[0]>xmax or pos[0]<xmin or pos[1]>ymax or pos[0]<ymin ):
+        return None
+    return pos[0] - xmin, pos[1] -ymin
+
+def pix2m(pos,origin,resolution):
+    return origin[0] + (resolution * pos[0]), origin[1] + (resolution * pos[1])
 
 if __name__ == "__main__":
 
@@ -58,7 +72,8 @@ if __name__ == "__main__":
                 cropped[x][y] = 255
 
 
-    cv2.imwrite("1-map.jpg",255 -cropped)
+    if imageOut:
+        cv2.imwrite("1-map.jpg",255 -cropped)
 
     img = np.array(cropped,'uint8')
 
@@ -68,17 +83,45 @@ if __name__ == "__main__":
 
     img = cv2.dilate(img,kernel)
 
-    cv2.imwrite("2-dilate8.jpg",255 -img)
+    if imageOut:
+        cv2.imwrite("2-dilate8.jpg",255 -img)
     img = cv2.erode(img,kernel)
 
-    cv2.imwrite("3-erode8.jpg",255 -img)
+    if imageOut:
+        cv2.imwrite("3-erode8.jpg",255 -img)
 
     img = cv2.medianBlur(np.float32(img),3)
-    cv2.imwrite("4-mBlur3.jpg",255 -img)
+    if imageOut:
+        cv2.imwrite("4-mBlur3.jpg",255 -img)
 
     kernel = np.ones((10,10),'uint8')
 
     final = cv2.dilate(img,kernel)
-    cv2.imwrite("5-final.jpg",255 -final)
+    if imageOut:
+        cv2.imwrite("5-final.jpg",255 -final)
+
+    final = 255-final
+
+    prm = algo.PRM(final,100,10)
+
+    cv2.imwrite("linkedmap.jpg",prm.returnLinkedMap())
+
+    miniPath = prm.path((74,769),(215,157))
+
+    origin = (map.info.origin.position.x,map.info.origin.position.y)
+    resolution = map.info.resolution
+
+    globalPathPix = []
+    globalPathPos = []
+    for elem in miniPath:
+        gElem = mini2global(elem,xmin, xmax, ymin , ymax)
+        globalPathPix.append(gElem)
+        globalPathPos.append(pix2m(gElem,origin,resolution))
+
+
+    print(globalPathPix)
+    print(globalPathPos)
+
+
 
     print("is oke")

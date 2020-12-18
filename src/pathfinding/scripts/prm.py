@@ -153,19 +153,18 @@ class PRM:
                     dist[v.node_id] =  alt
                     prev[v.node_id] = u
 
-        print(prev)
+        #print(prev)
 
         node = end
         path = []
         while True:
             if (node == -1):
                 break
-            path.append(node)
+            path.append(self.getById(node).point.toDouble())
             node = prev[node]
 
         #print path
-        return path
-
+        return path.reverse()
     def getEuclideanDistance(self,p1, p2):
         return math.sqrt(math.pow((p1.x - p2.x), 2) + math.pow((p1.y - p2.y), 2))
 
