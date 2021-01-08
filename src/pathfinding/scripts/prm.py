@@ -122,9 +122,6 @@ class PRM:
         else:
             self.computeNeighborGraphID(start)
 
-
-
-
         dist = [10000.0]*(self.nbNode)
         vset = [True]*(self.nbNode)
         prev = [-1]*(self.nbNode)
@@ -163,8 +160,9 @@ class PRM:
             path.append(self.getById(node).point.toDouble())
             node = prev[node]
 
-        #print path
-        return path.reverse()
+        print(path)
+        return path
+
     def getEuclideanDistance(self,p1, p2):
         return math.sqrt(math.pow((p1.x - p2.x), 2) + math.pow((p1.y - p2.y), 2))
 

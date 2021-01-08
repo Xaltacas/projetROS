@@ -8,9 +8,10 @@ import time
 import numpy as np
 import cv2
 import prm as algo
+from bresenham import collide
 
 
-imageOut = False
+imageOut = True
 
 
 def getAOI(map):
@@ -42,6 +43,33 @@ def global2mini(pos,xmin, xmax, ymin , ymax):
 
 def pix2m(pos,origin,resolution):
     return origin[0] + (resolution * pos[0]), origin[1] + (resolution * pos[1])
+
+def smooth(path, map, div = 10):
+    _div = 1./div
+    subpath= [path[0]]
+    prevpoint = path[0]
+    for point in path[1:]:
+        for i in range(1,div+1):
+            diffx = point[0] - prevpoint[0]
+            diffy = point[1] - prevpoint[1]
+
+            subpath.append((int(prevpoint[0]+ diffx*i*_div),int(prevpoint[1]+ diffy*i*_div)))
+        prevpoint = point
+
+    res = [subpath[0]]
+    current = 0
+    point = 1
+    while True :
+        if(point == len(subpath)-1):
+            res.append(subpath[point])
+            break
+        if (collide(subpath[current],subpath[point],map)):
+            res.append(subpath[point-1])
+            current= point - 1
+        point += 1
+
+    return res
+
 
 if __name__ == "__main__":
 
@@ -90,11 +118,11 @@ if __name__ == "__main__":
     if imageOut:
         cv2.imwrite("3-erode8.jpg",255 -img)
 
-    img = cv2.medianBlur(np.float32(img),3)
+    img = cv2.medianBlur(np.float32(img),5)
     if imageOut:
         cv2.imwrite("4-mBlur3.jpg",255 -img)
 
-    kernel = np.ones((10,10),'uint8')
+    kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(20,20))
 
     final = cv2.dilate(img,kernel)
     if imageOut:
@@ -107,6 +135,11 @@ if __name__ == "__main__":
     cv2.imwrite("linkedmap.jpg",prm.returnLinkedMap())
 
     miniPath = prm.path((74,769),(215,157))
+    print("minipath : \n")
+    print(miniPath)
+
+    print("smoothmini")
+    print(smooth(miniPath,4))
 
     origin = (map.info.origin.position.x,map.info.origin.position.y)
     resolution = map.info.resolution
@@ -119,7 +152,9 @@ if __name__ == "__main__":
         globalPathPos.append(pix2m(gElem,origin,resolution))
 
 
+    print("global")
     print(globalPathPix)
+    print("pos")
     print(globalPathPos)
 
 

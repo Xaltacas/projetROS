@@ -349,6 +349,12 @@ lib:FILEPATH=/opt/ros/melodic/lib/libxmlrpcpp.so
 message_runtime_DIR:PATH=/opt/ros/melodic/share/message_runtime/cmake
 
 //Value Computed by CMake
+minilab_model_BINARY_DIR:STATIC=/home/polytech/projetROS_ws/build/minilab_model
+
+//Value Computed by CMake
+minilab_model_SOURCE_DIR:STATIC=/home/polytech/projetROS_ws/src/minilab_model
+
+//Value Computed by CMake
 minilab_navigation_BINARY_DIR:STATIC=/home/polytech/projetROS_ws/build/minilab_navigation
 
 //Value Computed by CMake
@@ -365,6 +371,12 @@ pathfinding_BINARY_DIR:STATIC=/home/polytech/projetROS_ws/build/pathfinding
 
 //Value Computed by CMake
 pathfinding_SOURCE_DIR:STATIC=/home/polytech/projetROS_ws/src/pathfinding
+
+//Value Computed by CMake
+pioneer3dx_description_BINARY_DIR:STATIC=/home/polytech/projetROS_ws/build/pioneer3dx/pioneer3dx_description
+
+//Value Computed by CMake
+pioneer3dx_description_SOURCE_DIR:STATIC=/home/polytech/projetROS_ws/src/pioneer3dx/pioneer3dx_description
 
 //The directory containing a CMake configuration file for rosconsole.
 rosconsole_DIR:PATH=/opt/ros/melodic/share/rosconsole/cmake
@@ -509,7 +521,7 @@ CMAKE_MODULE_LINKER_FLAGS_RELWITHDEBINFO-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: CMAKE_NM
 CMAKE_NM-ADVANCED:INTERNAL=1
 //number of local generators
-CMAKE_NUMBER_OF_MAKEFILES:INTERNAL=8
+CMAKE_NUMBER_OF_MAKEFILES:INTERNAL=10
 //ADVANCED property for variable: CMAKE_OBJCOPY
 CMAKE_OBJCOPY-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: CMAKE_OBJDUMP

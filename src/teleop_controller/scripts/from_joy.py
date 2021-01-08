@@ -33,7 +33,7 @@ if __name__ == "__main__":
 
     while not rospy.is_shutdown():
         v_msg = Twist()
-        v_msg.linear.x = cx
+        v_msg.linear.x = cx/2
         v_msg.linear.y = 0
         v_msg.linear.z = 0
         v_msg.angular.x = 0

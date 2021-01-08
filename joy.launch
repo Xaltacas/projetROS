@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<launch>
+
+      <node type="joy_node" pkg="joy" name="joy_node" >
+            <param name="dev" value="/dev/input/js2"/>
+      </node>
+
+</launch>
