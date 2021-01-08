@@ -13,24 +13,71 @@ def dca(map,height, width, nb_cellules_X, nb_cellules_Y):
                     bol = False
                     
             if (bol) :
-                centres_cellules[i,j] = "s" #Sol
+                cellules[i,j] = "s" #Sol
             else :
-                centres_cellules[i,j] = "o" #Objet
+                cellules[i,j] = "o" #Objet
     
-    graph = {}
+    graph = []
     
-    for x in range(nb_cellules_X) :
-        for y in range(nb_cellules_Y) :
-            if (x==0 && y==0):
+    for y in range(nb_cellules_Y) :
+        for x in range(nb_cellules_X) :
             
-            elif (x==0 && y==nb_cellules_Y-1):
+            compt = 0
             
-            elif (x==nb_cellules_X-1 && y==0):
+            if (x!=0) :#Case de gauche 
+                if (cellules[x-1,y] == "s"):                     
+                    graph[compt].append(compt-1) 
             
-            elif (x==nb_cellules_X-1 && y==nb_cellules_Y-1):
+            if(x!=nb_cellules_X - 1) : #Case de droite
+                if (cellules[x+1,y] == "s"): 
+                    graph[compt].append(compt+1)
             
-            else :
+            if (y!=0) : #Case d'en dessous
+                if (cellules[x,y+1] == "s"): #Case d'en dessous                
+                    graph[compt].append(compt+width)
+            
+            if(y!=nb_cellules_X - 1) #Case d'au dessus
+                if (cellules[x,y-1] == "s"): #Case d'au dessus                
+                    graph[compt].append(compt-width) 
+             
+            compt++
+            
+    return graph;
+            
+
+def convertir_position_cellule(map,height, width, nb_cellules_X, nb_cellules_Y, posX, posY): 
+    
+    res = (posX//(width/nb_cellules_X))+nb_cellules_X*(posY//(height/nb_cellules_Y))
+    
+    return res
+              
+            
+def find_shortest_path(graph, start, end):
+
+
+        dist = {start: [start]}
+        
+        q = deque(start)
+        
+        while len(q):
+            at = q.popleft()
+            
+            for next in graph[at]:
+                if next not in dist:
+                    dist[next] = [dist[at], next]
+                    q.append(next)
+            
+        return dist.get(end)
                 
+                
+def pathfind_dca(map,height, width, nb_cellules_X, nb_cellules_Y, pos_depart, pos_arrivee) :
+
+    graph = dca(map,height, width, nb_cellules_X, nb_cellules_Y)
+    start = convertir_position_cellule(pos_depart)
+    end = convertir_position_cellule(pos_arrivee)
+    path = find_shortest_path(graph, start, end)
+    
+    return path
     
 
 
