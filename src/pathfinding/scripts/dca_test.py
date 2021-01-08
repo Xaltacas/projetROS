@@ -4,7 +4,8 @@ from dca import *
 
 im = cv2.imread("5-final.jpg",cv2.IMREAD_GRAYSCALE)
 
-width, height = cv.GetSize(im)
+
+height,width = im.shape
 
 graphe = dca(im,height, width, width//20, height//20)
 cellule_depart = convertir_position_cellule(im,height, width, width//20, height//20, 74, 769)
