@@ -1,10 +1,12 @@
 import cv2
 import numpy as np
+
+
 def dca(map,deltaX, deltaY, nb_cellules_X, nb_cellules_Y):
 
     cellules = [[0 for i in range(nb_cellules_X)] for j in range(nb_cellules_Y)]
-    print(len(cellules[0]), len(cellules))
     
+    compteur = 0
     for j in range(nb_cellules_Y):
         for i in range(nb_cellules_X):
             cellule = map[i*deltaX:(i+1)*deltaX,j*deltaY:(j+1)*deltaY]
@@ -18,8 +20,8 @@ def dca(map,deltaX, deltaY, nb_cellules_X, nb_cellules_Y):
                 cellules[j][i] = "s" #Sol
             else :
                 cellules[j][i] = "o" #Objet
-            bol=True
-                
+                compteur += 1
+            bol=True           
     graph = [[] for i in range(nb_cellules_X*nb_cellules_Y)]
     
     compt = 0
@@ -39,22 +41,38 @@ def dca(map,deltaX, deltaY, nb_cellules_X, nb_cellules_Y):
             
                 if (y!=0) : #Case d'au dessus
                     if (cellules[y-1][x] == "s"): #Case d'en dessous                
-                        graph[compt].append(compt-width)
+                        graph[compt].append(compt-nb_cellules_X)
             
                 if(y!=nb_cellules_Y - 1): #Case d'en dessous
                     if (cellules[y+1][x] == "s"): #Case d'au dessus                
-                        graph[compt].append(compt+width) 
+                        graph[compt].append(compt+nb_cellules_X)
              
             compt += 1
+    print(compteur)
             
     return graph;
             
 
-def convertir_position_cellule(map,height, width, nb_cellules_X, nb_cellules_Y, posX, posY): 
+def convertir_position_cellule(height, width, nb_cellules_X, nb_cellules_Y, posX, posY):
     
+    height = float(height)
+    width = float(width)
     res = (posX//(width/nb_cellules_X))+nb_cellules_X*(posY//(height/nb_cellules_Y))
+    #print(res)
+    return int(res)
     
-    return res
+def convertir_num_cell_milieu_cell(deltaX, deltaY, nb_cellules_X, nb_cellules_Y,num_cellule) :
+
+    
+    num_x = num_cellule%nb_cellules_X
+    
+    num_y = num_cellule//nb_cellules_X
+    x = num_x * deltaX + deltaX/2
+    y = num_y * deltaY + deltaY/2
+    return(int(x),int(y))
+    
+    
+    
               
 """          
 def find_shortest_path(graph, start, end):
@@ -79,18 +97,17 @@ def find_shortest_path(graph, start, end):
                 
 def pathfind_dca(map,height, width, nb_cellules_X, nb_cellules_Y, pos_depart, pos_arrivee) :
 
-    deltaX = width/nb_cellules_X
-    deltaY = height/nb_cellules_Y
+    deltaX = int(float(width)/nb_cellules_X)
+    deltaY = int(float(height)/nb_cellules_Y)
     graph = dca(map,deltaX, deltaY, nb_cellules_X, nb_cellules_Y)
-    start = convertir_position_cellule(pos_depart)
-    end = convertir_position_cellule(pos_arrivee)
-    path = find_shortest_path(graph, start, end)
+    start = convertir_position_cellule(height, width, nb_cellules_X, nb_cellules_Y, pos_depart[0], pos_depart[1])
+    end = convertir_position_cellule(height, width, nb_cellules_X, nb_cellules_Y, pos_arrivee[0], pos_arrivee[1])
+    res = path(graph,deltaX, deltaY, nb_cellules_X, nb_cellules_Y, start, end)
     
-    return path
+    return res
     
 
-def path(graph,deltaX, deltaY,start,end):
-        
+def path(graph,deltaX, deltaY, nb_cellules_X, nb_cellules_Y, start, end):
         if (graph[start] == [] or graph[end] == []):
         
             print("C'est pas possible")
@@ -133,17 +150,116 @@ def path(graph,deltaX, deltaY,start,end):
 
         #print(prev)
 
-        node = end
+        cellule = end
         path = []
         while True:
-            if (node == -1):
+            if (cellule == -1):
                 break
-            path.append(self.getById(node).point.toDouble())
-            node = prev[node]
+            path.append(cellule)
+            cellule = prev[cellule]
 
-        #print path
-        return path.reverse()
+        #print(path)
         
+        
+        for k in range (len(path)) :
+            path[k] = convertir_num_cell_milieu_cell(deltaX, deltaY, nb_cellules_X, nb_cellules_Y,path[k])
+            
+            
+        return path
+        
+def get_line(start, end):
+    """Bresenham's Line Algorithm
+    Produces a list of tuples from start and end
+
+    >>> points1 = get_line((0, 0), (3, 4))
+    >>> points2 = get_line((3, 4), (0, 0))
+    >>> assert(set(points1) == set(points2))
+    >>> print points1
+    [(0, 0), (1, 1), (1, 2), (2, 3), (3, 4)]
+    >>> print points2
+    [(3, 4), (2, 3), (1, 2), (1, 1), (0, 0)]
+    """
+    # Setup initial conditions
+    x1, y1 = start
+    x2, y2 = end
+    dx = x2 - x1
+    dy = y2 - y1
+
+    # Determine how steep the line is
+    is_steep = abs(dy) > abs(dx)
+
+    # Rotate line
+    if is_steep:
+        x1, y1 = y1, x1
+        x2, y2 = y2, x2
+
+    # Swap start and end points if necessary and store swap state
+    swapped = False
+    if x1 > x2:
+        x1, x2 = x2, x1
+        y1, y2 = y2, y1
+        swapped = True
+
+    # Recalculate differentials
+    dx = x2 - x1
+    dy = y2 - y1
+
+    # Calculate error
+    error = int(dx / 2.0)
+    ystep = 1 if y1 < y2 else -1
+
+    # Iterate over bounding box generating points between start and end
+    y = y1
+    points = []
+    for x in range(x1, x2 + 1):
+        coord = (y, x) if is_steep else (x, y)
+        points.append(coord)
+        error -= abs(dy)
+        if error < 0:
+            y += ystep
+            error += dx
+
+    # Reverse the list if the coordinates were swapped
+    if swapped:
+        points.reverse()
+    return points
+
+
+def collide(p1,p2,map):
+    for point in get_line(p1,p2):
+        x,y = point
+        if(map[x,y] == 0):
+            #print("collision en {} , {}".format(x,y))
+            return True
+    return False
+            
+def smooth(path, map, div = 10):
+    _div = 1./div
+    subpath= [path[0]]
+    prevpoint = path[0]
+    for point in path[1:]:
+        for i in range(1,div+1):
+            diffx = point[0] - prevpoint[0]
+            diffy = point[1] - prevpoint[1]
+
+            subpath.append((int(prevpoint[0]+ diffx*i*_div),int(prevpoint[1]+ diffy*i*_div)))
+        prevpoint = point
+
+    res = [subpath[0]]
+    current = 0
+    point = 1
+    while True :
+        if(point == len(subpath)-1):
+            res.append(subpath[point])
+            break
+        if (collide(subpath[current],subpath[point],map)):
+            res.append(subpath[point-1])
+            current= point - 1
+        point += 1
+
+    return res
+
+"""     
 def pathfind_dca(map,height, width, nb_cellules_X, nb_cellules_Y, pos_depart, pos_arrivee) :
 
     graph = dca(map,height, width, nb_cellules_X, nb_cellules_Y)
@@ -152,7 +268,7 @@ def pathfind_dca(map,height, width, nb_cellules_X, nb_cellules_Y, pos_depart, po
     path = find_shortest_path(graph, start, end)
     
     return path
-"""
+
     else :
         pixel_init = map(x1,y1)
         bol = True

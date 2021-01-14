@@ -2,18 +2,42 @@ import cv2
 from dca import *
 
 
+
 im = cv2.imread("5-final.jpg",cv2.IMREAD_GRAYSCALE)
 
 
 height,width = im.shape
 
-graphe = dca(im,height, width, width//20, height//20)
-cellule_depart = convertir_position_cellule(im,height, width, width//20, height//20, 74, 769)
-cellule_arrivee = convertir_position_cellule(im,height, width, width//20, height//20, 215, 157)
+#print(convertir_position_cellule(101, 101, 10, 10, 100, 100))
 
-path = find_shortest_path(graphe,cellule_depart,cellule_arrivee)
+lpath = pathfind_dca(im,width, height,  width//10, height//10, (74,769),(215,157))
 
-print(path)
+miniPath = smooth(lpath,im,15)
+miniPath = smooth(miniPath,im,15)
+miniPath = smooth(miniPath,im,15)
+
+#cv2.imwrite("PRM.jpg",image)
+
+path = im.copy()
+path = cv2.cvtColor(path,cv2.COLOR_GRAY2RGB)
+
+
+for i in range(len(lpath)-1):
+    p1 = lpath[i]
+    p2 = lpath[i+1]
+
+    cv2.line(path,(p1[1],p1[0]),(p2[1],p2[0]),(0,0,255),7)
+
+for i in range(len(miniPath)-1):
+    p1 = miniPath[i]
+    p2 = miniPath[i+1]
+
+    cv2.line(path,(p1[1],p1[0]),(p2[1],p2[0]),(255,0,0),3)
+
+cv2.imwrite("DCA_path_smooth.jpg",path)
+
+print("Ca passe")
+
 
 """
 image = prm.returnLinkedMap()
