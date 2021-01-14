@@ -8,13 +8,9 @@ import time
 import numpy as np
 import cv2
 import prm as algo
-from bresenham import collide
-from utils import *
+from utils import getAOI
 
-imageOut = True
-
-
-
+imageName ="reel"
 
 
 if __name__ == "__main__":
@@ -25,9 +21,8 @@ if __name__ == "__main__":
 
     vect = np.array(map.data)
 
-    #print(np.histogram(vect,bins = 255))
 
-    data = np.reshape(vect,(1600,1600))
+    data = np.reshape(vect,(map.info.height,map.info.width))
 
     xmin, xmax, ymin , ymax = getAOI(data)
 
@@ -45,47 +40,37 @@ if __name__ == "__main__":
             else:
                 cropped[x][y] = 255
     img = np.array(cropped,'uint8')
+    print("cropped")
 
+    cv2.imwrite(imageName+"_1-map.jpg",255 -cropped)
 
 
     kernel = np.ones((8,8),'uint8')
     img = cv2.dilate(img,kernel)
+    print("dilate")
+
+    cv2.imwrite(imageName+"_2-dilate8.jpg",255 -img)
 
     img = cv2.erode(img,kernel)
+    print("erode")
+
+    cv2.imwrite(imageName+"_3-erode8.jpg",255 -img)
 
     img = cv2.medianBlur(np.float32(img),5)
+    print("blur")
+
+    cv2.imwrite(imageName+"_4-mBlur3.jpg",255 -img)
 
     kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(20,20))
     final = cv2.dilate(img,kernel)
+    print("final")
+
+    cv2.imwrite(imageName+"_5-final.jpg",255 -final)
 
     final = 255-final
-
+    print("debutPRM")
     prm = algo.PRM(final,100,10)
 
+    cv2.imwrite(imageName+"_linkedmap.jpg",prm.returnLinkedMap())
 
-    miniPath = prm.path((74,769),(215,157))
-    print("minipath : \n")
-    print(miniPath)
-
-    print("smoothmini")
-    print(smooth(miniPath,4))
-
-    origin = (map.info.origin.position.x,map.info.origin.position.y)
-    resolution = map.info.resolution
-
-    globalPathPix = []
-    globalPathPos = []
-    for elem in miniPath:
-        gElem = mini2global(elem,xmin, xmax, ymin , ymax)
-        globalPathPix.append(gElem)
-        globalPathPos.append(pix2m(gElem,origin,resolution))
-
-
-    print("global")
-    print(globalPathPix)
-    print("pos")
-    print(globalPathPos)
-
-
-
-    print("is oke")
+    print("ok")

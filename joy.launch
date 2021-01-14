@@ -4,5 +4,6 @@
       <node type="joy_node" pkg="joy" name="joy_node" >
             <param name="dev" value="/dev/input/js2"/>
       </node>
+      <node type="from_joy.py" pkg="teleop_controller" name="teleop_joy"/>
 
 </launch>

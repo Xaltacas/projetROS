@@ -5,6 +5,8 @@ from pathfinding import smooth
 
 im = cv2.imread("5-final.jpg",cv2.IMREAD_GRAYSCALE)
 
+smoothing = 10
+iter = 3
 
 prm = PRM(im,100,10)
 
@@ -14,12 +16,13 @@ lpath = prm.path((74,769),(215,157))
 
 image = prm.returnLinkedMap()
 
-miniPath = smooth(lpath,prm.map,5)
-
-#cv2.imwrite("PRM.jpg",image)
-
 path = image.copy()
 path = cv2.cvtColor(path,cv2.COLOR_GRAY2RGB)
+
+miniPath = lpath
+for i in range(iter):
+    #print("iter = " + str(i))
+    miniPath = smooth(miniPath,prm.map,smoothing)
 
 
 for i in range(len(lpath)-1):
