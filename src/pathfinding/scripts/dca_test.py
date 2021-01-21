@@ -10,7 +10,13 @@ height,width = im.shape
 
 #print(convertir_position_cellule(101, 101, 10, 10, 100, 100))
 
-lpath = pathfind_dca(im,width, height,  width//10, height//10, (74,769),(215,157))
+
+
+#lpath = pathfind_dca(im,width, height,  width//10, height//10, (74,769),(215,157))
+
+algo = algo.DCA(map,150,100)
+
+lpath = algo.path((74,769),(215,157))
 
 miniPath = smooth(lpath,im,15)
 miniPath = smooth(miniPath,im,15)

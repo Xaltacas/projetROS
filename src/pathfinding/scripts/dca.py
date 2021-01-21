@@ -1,171 +1,162 @@
 import cv2
 import numpy as np
 
+class DCA : 
+    def __init__(self, map, nb_cellules_X, nb_cellules_Y):
 
-def dca(map,deltaX, deltaY, nb_cellules_X, nb_cellules_Y):
+        self.map = map
+        self.width = map.shape[0]
+        self.height = map.shape[1]
+        self.nb_cellules_X = nb_cellules_X
+        self.nb_cellules_Y = nb_cellules_Y
+        self.deltaX = int(float(self.width)/self.nb_cellules_X)
+        self.deltaY = int(float(self.height)/self.nb_cellules_Y)
 
-    cellules = [[0 for i in range(nb_cellules_X)] for j in range(nb_cellules_Y)]
+    def dca(self):
     
-    compteur = 0
-    for j in range(nb_cellules_Y):
-        for i in range(nb_cellules_X):
-            cellule = map[i*deltaX:(i+1)*deltaX,j*deltaY:(j+1)*deltaY]
-            
-            for ligne in cellule :
-                for pixel in ligne :
-                    if (pixel == 0) :
-                        bol = False
-                    
-            if (bol) :
-                cellules[j][i] = "s" #Sol
-            else :
-                cellules[j][i] = "o" #Objet
-                compteur += 1
-            bol=True           
-    graph = [[] for i in range(nb_cellules_X*nb_cellules_Y)]
-    
-    compt = 0
-    
-    for y in range(nb_cellules_Y) :
-        for x in range(nb_cellules_X) :
-            
-            if (cellules[y][x] == "s"):
-            
-                if (x!=0) :#Case de gauche 
-                    if (cellules[y][x-1] == "s"):                     
-                        graph[compt].append(compt-1) 
-            
-                if(x!=nb_cellules_X - 1) : #Case de droite
-                    if (cellules[y][x+1] == "s"): 
-                        graph[compt].append(compt+1)
-            
-                if (y!=0) : #Case d'au dessus
-                    if (cellules[y-1][x] == "s"): #Case d'en dessous                
-                        graph[compt].append(compt-nb_cellules_X)
-            
-                if(y!=nb_cellules_Y - 1): #Case d'en dessous
-                    if (cellules[y+1][x] == "s"): #Case d'au dessus                
-                        graph[compt].append(compt+nb_cellules_X)
-             
-            compt += 1
-    print(compteur)
-            
-    return graph;
-            
-
-def convertir_position_cellule(height, width, nb_cellules_X, nb_cellules_Y, posX, posY):
-    
-    height = float(height)
-    width = float(width)
-    res = (posX//(width/nb_cellules_X))+nb_cellules_X*(posY//(height/nb_cellules_Y))
-    #print(res)
-    return int(res)
-    
-def convertir_num_cell_milieu_cell(deltaX, deltaY, nb_cellules_X, nb_cellules_Y,num_cellule) :
-
-    
-    num_x = num_cellule%nb_cellules_X
-    
-    num_y = num_cellule//nb_cellules_X
-    x = num_x * deltaX + deltaX/2
-    y = num_y * deltaY + deltaY/2
-    return(int(x),int(y))
-    
-    
-    
-              
-"""          
-def find_shortest_path(graph, start, end):
-
-
-        dist = {start: [start]}
         
-        q = deque(start)
-        
-        while len(q):
-            at = q.popleft()
-            
-            for next in graph[at]:
-                if next not in dist:
-                    dist[next] = [dist[at],next]
-                    q.append(next)
-            
-        return dist.get(end)
+	
+        cellules = [[0 for i in range(self.nb_cellules_X)] for j in range(self.nb_cellules_Y)]
+    
+        compteur = 0
+        for j in range(self.nb_cellules_Y):
+            for i in range(self.nb_cellules_X):
+                cellule = map[i*self.deltaX:(i+1)*self.deltaX,j*self.deltaY:(j+1)*self.deltaY]
                 
-"""
-
-                
-def pathfind_dca(map,height, width, nb_cellules_X, nb_cellules_Y, pos_depart, pos_arrivee) :
-
-    deltaX = int(float(width)/nb_cellules_X)
-    deltaY = int(float(height)/nb_cellules_Y)
-    graph = dca(map,deltaX, deltaY, nb_cellules_X, nb_cellules_Y)
-    start = convertir_position_cellule(height, width, nb_cellules_X, nb_cellules_Y, pos_depart[0], pos_depart[1])
-    end = convertir_position_cellule(height, width, nb_cellules_X, nb_cellules_Y, pos_arrivee[0], pos_arrivee[1])
-    res = path(graph,deltaX, deltaY, nb_cellules_X, nb_cellules_Y, start, end)
-    
-    return res
-    
-
-def path(graph,deltaX, deltaY, nb_cellules_X, nb_cellules_Y, start, end):
-        if (graph[start] == [] or graph[end] == []):
-        
-            print("C'est pas possible")
-            return -1
-            
-        
-        nb_cellules = len(graph)
-        dist = [10000.0]*(nb_cellules)
-        vset = [True]*(nb_cellules)
-        prev = [-1]*(nb_cellules)
-
-        dist[start] = 0
-
-        while True:
-            if (sum(vset) == 0):
-                break
-
-            low = 10000.0
-            u = -1
-            for i in xrange(nb_cellules):
-                if (vset[i]):
-                    if (u == -1 or dist[i] < low):
-                        low = dist[i]
-                        u = i
-
-            vset[u] = False;
-
-            for v in graph[u]:
-
-                if(abs(u-v)==1):
-                
-                    alt = dist[u] + deltaX
-                    
+                for ligne in cellule :
+                    for pixel in ligne :
+                        if (pixel == 0) :
+                            bol = False
+                        
+                if (bol) :
+                        cellules[j][i] = "s" #Sol
                 else :
-                     alt = dist[u] + deltaY
-
-                if (alt < dist[v]):
-                    dist[v] =  alt
-                    prev[v] = u
-
-        #print(prev)
-
-        cellule = end
-        path = []
-        while True:
-            if (cellule == -1):
-                break
-            path.append(cellule)
-            cellule = prev[cellule]
-
-        #print(path)
+                    cellules[j][i] = "o" #Objet
+                    compteur += 1
+                bol=True           
+        graph = [[] for i in range(self.nb_cellules_X*self.nb_cellules_Y)]
+    
+        compt = 0
+    
+        for y in range(self.nb_cellules_Y) :
+            for x in range(self.nb_cellules_X) :
+                
+                if (cellules[y][x] == "s"):
+                
+                        if (x!=0) :#Case de gauche 
+                            if (cellules[y][x-1] == "s"):                     
+                            graph[compt].append(compt-1) 
+                    
+                    if(x!=nb_cellules_X - 1) : #Case de droite
+                        if (cellules[y][x+1] == "s"): 
+                                graph[compt].append(compt+1)
+                
+                    if (y!=0) : #Case d'au dessus
+                        if (cellules[y-1][x] == "s"): #Case d'en dessous                
+                                graph[compt].append(compt-self.nb_cellules_X)
+                
+                    if(y!=nb_cellules_Y - 1): #Case d'en dessous
+                        if (cellules[y+1][x] == "s"): #Case d'au dessus                
+                            graph[compt].append(compt+self.nb_cellules_X)
+                 
+                compt += 1
+                
+            return graph;
+                
+    
+    def convertir_position_cellule(self, posX, posY):
+            
+        height = float(self.height)
+        width = float(self.width)
+        res = (posX//(width/self.nb_cellules_X))+self.nb_cellules_X*(posY//(height/self.nb_cellules_Y))
+        #print(res)
+        return int(res)
+    
+    def convertir_num_cell_milieu_cell(self,num_cellule) :
+    
+        
+        num_x = num_cellule%self.nb_cellules_X
+        
+        num_y = num_cellule//self.nb_cellules_X
+        x = num_x * self.deltaX + self.deltaX/2
+        y = num_y * self.deltaY + self.deltaY/2
+        return(int(x),int(y))
         
         
-        for k in range (len(path)) :
-            path[k] = convertir_num_cell_milieu_cell(deltaX, deltaY, nb_cellules_X, nb_cellules_Y,path[k])
+
+
+                
+    def path(self, pos_depart, pos_arrivee) :
+    
+        
+        graph = dca(self)
+        start = convertir_position_cellule(self, pos_depart[0], pos_depart[1])
+        end = convertir_position_cellule(self, pos_arrivee[0], pos_arrivee[1])
+        res = pathfind_dca(self, start, end)
+    
+        return res
+    
+
+    def pathfind_dca(self, start, end):
+            if (graph[start] == [] or graph[end] == []):
+            
+                print("C'est pas possible")
+                return -1
+                
+                
+            nb_cellules = len(graph)
+            dist = [10000.0]*(nb_cellules)
+            vset = [True]*(nb_cellules)
+            prev = [-1]*(nb_cellules)
+        
+            dist[start] = 0
+    
+            while True:
+                if (sum(vset) == 0):
+                        break
+    
+                low = 10000.0
+                u = -1
+                    for i in xrange(nb_cellules):
+                    if (vset[i]):
+                        if (u == -1 or dist[i] < low):
+                            low = dist[i]
+                            u = i
+    
+                    vset[u] = False;
+    
+                for v in graph[u]:
+    
+                    if(abs(u-v)==1):
+                    
+                        alt = dist[u] + self.deltaX
+                        
+                        else :
+                        
+                        alt = dist[u] + self.deltaY
+    
+                    if (alt < dist[v]):
+                        dist[v] =  alt
+                        prev[v] = u
+    
+            #print(prev)
+    
+            cellule = end
+            path = []
+            while True:
+                if (cellule == -1):
+                    break
+                path.append(cellule)
+                cellule = prev[cellule]
+    
+            #print(path)
+        
+        
+            for k in range (len(path)) :
+                path[k] = convertir_num_cell_milieu_cell(self,path[k])
             
             
-        return path
+            return path
         
 def get_line(start, end):
     """Bresenham's Line Algorithm
@@ -225,13 +216,13 @@ def get_line(start, end):
     return points
 
 
-def collide(p1,p2,map):
-    for point in get_line(p1,p2):
-        x,y = point
-        if(map[x,y] == 0):
-            #print("collision en {} , {}".format(x,y))
-            return True
-    return False
+    def collide(p1,p2,map):
+        for point in get_line(p1,p2):
+            x,y = point
+            if(map[x,y] == 0):
+                #print("collision en {} , {}".format(x,y))
+                return True
+        return False
             
 def smooth(path, map, div = 10):
     _div = 1./div
@@ -300,7 +291,27 @@ def centre_rectangles_sol(liste) :
     return res
 """
 
+    
+              
+"""          
+def find_shortest_path(graph, start, end):
 
+
+        dist = {start: [start]}
+        
+        q = deque(start)
+        
+        while len(q):
+            at = q.popleft()
+            
+            for next in graph[at]:
+                if next not in dist:
+                    dist[next] = [dist[at],next]
+                    q.append(next)
+            
+        return dist.get(end)
+                
+"""
 
 
 
