@@ -1,7 +1,7 @@
 import numpy as np
 
-def getAOI(map):
-    height,width = map.shape
+def getAOI(data):
+    height,width = data.shape
 
     xmin = height
     xmax = 0

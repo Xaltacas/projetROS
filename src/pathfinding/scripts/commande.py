@@ -14,21 +14,14 @@ def commande(pos_rob,point_objectif) :
     ## Gains ##
     Kp = 1
     Ka = 1
-    Kb = 1
+    Kb = 0.5
     
     
     u = Kp*dist
     w= Ka*alpha + Kb*dbeta
     
     
-    
-    res = [u,w]
-    
-    return res
-    
-    
-res = commande([1,1,0,0,0,3.14/2],[2,2,0,3.14/4,0,0])
-print(res)
+    return u ,w
     
     
     

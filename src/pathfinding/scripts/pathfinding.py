@@ -2,6 +2,8 @@
 
 import rospy
 from geometry_msgs.msg import Twist
+from geometry_msgs.msg import PoseStamped
+
 from nav_msgs.srv import GetMap
 import math
 import time
@@ -10,16 +12,26 @@ import cv2
 import prm as algo
 from bresenham import collide
 from utils import *
+from commande import *
 import tf
 
 pointList =[]
 
-
+nextpoint = [0,0,0,0,0,0]
+atteint = False
 
 def cb_newGoal(goalMessage):
-    pass
+	global nextpoint
+	global atteint
 
-def generateMap(map):
+	goalMessage = goalMessage.pose
+
+	rot = quaternion_to_euler(goalMessage.orientation.x,goalMessage.orientation.y,goalMessage.orientation.z,goalMessage.orientation.w)
+	nextpoint = [goalMessage.position.x,goalMessage.position.y,goalMessage.position.z,0,0,rot[0]*math.pi/180]
+
+	atteint = False
+
+def generateMap(data):
     xmin, xmax, ymin , ymax = getAOI(data)
 
     print("AOI",xmin, xmax, ymin , ymax)
@@ -56,69 +68,100 @@ def generateMap(map):
 
 if __name__ == "__main__":
 
-    rospy.init_node("teleop_from_rviz")
+	rospy.init_node("teleop_from_rviz")
 
-    goal_topic = "/move_base_simple/goal"
-    goal_subscriber = rospy.Subscriber(goal_topic,Joy,cb_newGoal) 
+	goal_topic = "/move_base_simple/goal"
+	goal_subscriber = rospy.Subscriber(goal_topic,PoseStamped,cb_newGoal) 
 
-    cmd_vel_topic = "/cmd_vel"
-    velocity_publisher = rospy.Publisher(cmd_vel_topic,Twist,queue_size =10)
+	cmd_vel_topic = "/cmd_vel"
+	velocity_publisher = rospy.Publisher(cmd_vel_topic,Twist,queue_size =10)
 
-    listener = tf.TransformListener()
+	listener = tf.TransformListener()
 
-    rospy.wait_for_service("dynamic_map")
-    service = rospy.ServiceProxy("dynamic_map",GetMap)
-    map = service().map
-    vect = np.array(map.data)
-    data = np.reshape(vect,(1600,1600))
+	rospy.wait_for_service("dynamic_map")
+	service = rospy.ServiceProxy("dynamic_map",GetMap)
+	map = service().map
+	vect = np.array(map.data)
+	data = np.reshape(vect,(1600,1600))
 
-    map = generateMap(data)
+	map = generateMap(data)
 
-    prm = algo.PRM(map,100,10)
+	prm = algo.PRM(map,100,10)
 
-    rate = rospy.Rate(1.0)
-    # loop forever until roscore or this node is down
-    while not rospy.is_shutdown():
-        try:
-            # listen to transform
-            (trans,rot) = listener.lookupTransform('/map', '/base_link', rospy.Time(0))
-            rot_angle = quaternion_to_euler(rot(0),rot(1),rot(4),rot(3))
-            # print the transform
-            rospy.loginfo('---------')
-            rospy.loginfo('Translation: ' + str(trans))
-            rospy.loginfo('Rotation: ' + str(rot))
-            rospy.loginfo('Rot_angle: ' + str(rot_angle))
-            
-        except (tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException):
-            continue
-        # sleep to control the node frequency
-        rate.sleep()
+	(trans,rot) = listener.lookupTransform('/map', '/base_link', rospy.Time(0))
+	rot_angle = quaternion_to_euler(rot[0],rot[1],rot[2],rot[3])
 
+	nextpoint = [trans[0],trans[1],trans[2],0,0,rot_angle[0]*math.pi/180]
 
-    """
-    miniPath = prm.path((74,769),(215,157))
-    #print("minipath : \n")
-    #print(miniPath)
+	rate = rospy.Rate(10)
+	# loop forever until roscore or this node is down
+	while not rospy.is_shutdown():
+		try:
+			# listen to transform
+			(trans,rot) = listener.lookupTransform('/map', '/base_link', rospy.Time(0))
+			rot_angle = quaternion_to_euler(rot[0],rot[1],rot[2],rot[3])
 
-    #print("smoothmini")
-    #print(smooth(miniPath,4))
+			currpos = [trans[0],trans[1],trans[2],0,0,rot_angle[0]*math.pi/180]
 
-    origin = (map.info.origin.position.x,map.info.origin.position.y)
-    resolution = map.info.resolution
+		except (tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException):
+			print("ca merde")
+			continue
+		# sleep to control the node frequency
+		
+		
 
-    globalPathPix = []
-    globalPathPos = []
-    for elem in miniPath:
-        gElem = mini2global(elem,xmin, xmax, ymin , ymax)
-        globalPathPix.append(gElem)
-        globalPathPos.append(pix2m(gElem,origin,resolution))
+		if(not atteint):
+
+			print("currpos :")
+			print(currpos)
+			print("nextpoint :")
+			print(nextpoint)
 
 
-    print("global")
-    print(globalPathPix)
-    print("pos")
-    print(globalPathPos)
-    """
+			u , w = commande(currpos,nextpoint)
+
+			print("u : {}, w: {}".format(u,w))
+
+			v_msg = Twist()
+			v_msg.linear.x = max(min(u,5),-5)
+			v_msg.linear.y = 0
+			v_msg.linear.z = 0
+			v_msg.angular.x = 0
+			v_msg.angular.y = 0
+			v_msg.angular.z = max(min(-w,1),-1)
+
+			velocity_publisher.publish(v_msg)
+
+			if( math.sqrt((currpos[0] - nextpoint[0]) * (currpos[0] - nextpoint[0]) + (currpos[1] - nextpoint[1]) *(currpos[1] - nextpoint[1])) < 0.1):
+				atteint = True
+				print("atteint !!")
+
+		rate.sleep()
+
+		
+
+	"""
+	miniPath = prm.path((74,769),(215,157))
+	#print("minipath : \n")
+	#print(miniPath)
+
+	#print("smoothmini")
+	#print(smooth(miniPath,4))
+
+	origin = (map.info.origin.position.x,map.info.origin.position.y)
+	resolution = map.info.resolution
+
+	globalPathPix = []
+	globalPathPos = []
+	for elem in miniPath:
+		gElem = mini2global(elem,xmin, xmax, ymin , ymax)
+		globalPathPix.append(gElem)
+		globalPathPos.append(pix2m(gElem,origin,resolution))
 
 
-    print("is oke")
+	print("global")
+	print(globalPathPix)
+	print("pos")
+	print(globalPathPos)
+	"""
+
