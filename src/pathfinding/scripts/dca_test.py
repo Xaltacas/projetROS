@@ -1,5 +1,5 @@
 import cv2
-from dca import *
+import dca
 
 
 
@@ -14,7 +14,7 @@ height,width = im.shape
 
 #lpath = pathfind_dca(im,width, height,  width//10, height//10, (74,769),(215,157))
 
-algo = algo.DCA(map,150,100)
+algo = dca.DCA(map,150,100)
 
 lpath = algo.path((74,769),(215,157))
 

@@ -43,17 +43,17 @@ class DCA :
                 
                 if (cellules[y][x] == "s"):
                 
-                        if (x!=0) :#Case de gauche 
-                            if (cellules[y][x-1] == "s"):                     
+                    if (x!=0) :#Case de gauche 
+                        if (cellules[y][x-1] == "s"):                     
                             graph[compt].append(compt-1) 
                     
                     if(x!=nb_cellules_X - 1) : #Case de droite
                         if (cellules[y][x+1] == "s"): 
-                                graph[compt].append(compt+1)
+                            graph[compt].append(compt+1)
                 
                     if (y!=0) : #Case d'au dessus
                         if (cellules[y-1][x] == "s"): #Case d'en dessous                
-                                graph[compt].append(compt-self.nb_cellules_X)
+                            graph[compt].append(compt-self.nb_cellules_X)
                 
                     if(y!=nb_cellules_Y - 1): #Case d'en dessous
                         if (cellules[y+1][x] == "s"): #Case d'au dessus                
@@ -117,7 +117,7 @@ class DCA :
     
                 low = 10000.0
                 u = -1
-                    for i in xrange(nb_cellules):
+                for i in xrange(nb_cellules):
                     if (vset[i]):
                         if (u == -1 or dist[i] < low):
                             low = dist[i]
@@ -131,7 +131,7 @@ class DCA :
                     
                         alt = dist[u] + self.deltaX
                         
-                        else :
+                    else :
                         
                         alt = dist[u] + self.deltaY
     
