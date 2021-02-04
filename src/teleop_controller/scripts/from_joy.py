@@ -2,6 +2,8 @@
 
 import rospy
 from geometry_msgs.msg import Twist
+from geometry_msgs.msg import PoseStamped
+
 from sensor_msgs.msg import Joy
 import math
 import time
@@ -33,13 +35,13 @@ if __name__ == "__main__":
 
     while not rospy.is_shutdown():
         v_msg = Twist()
-        v_msg.linear.x = cx/2
+        v_msg.linear.x = cx * 3
         v_msg.linear.y = 0
         v_msg.linear.z = 0
         v_msg.angular.x = 0
         v_msg.angular.y = 0
-        v_msg.angular.z = cz
-
+        v_msg.angular.z = cz *2
+        
         velocity_publisher.publish(v_msg)
 
         rate.sleep()

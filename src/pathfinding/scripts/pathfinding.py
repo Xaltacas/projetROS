@@ -128,11 +128,11 @@ if __name__ == "__main__":
 			v_msg.linear.z = 0
 			v_msg.angular.x = 0
 			v_msg.angular.y = 0
-			v_msg.angular.z = max(min(-w,1),-1)
+			v_msg.angular.z = max(min(w,1),-1)
 
 			velocity_publisher.publish(v_msg)
 
-			if( math.sqrt((currpos[0] - nextpoint[0]) * (currpos[0] - nextpoint[0]) + (currpos[1] - nextpoint[1]) *(currpos[1] - nextpoint[1])) < 0.1):
+			if( math.sqrt((currpos[0] - nextpoint[0]) * (currpos[0] - nextpoint[0]) + (currpos[1] - nextpoint[1]) *(currpos[1] - nextpoint[1])) < 0.3):
 				atteint = True
 				print("atteint !!")
 

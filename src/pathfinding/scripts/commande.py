@@ -12,10 +12,9 @@ def commande(pos_rob,point_objectif) :
     dbeta = beta_suivant-beta
     
     ## Gains ##
-    Kp = 1
+    Kp = 0.3
     Ka = 1
-    Kb = 0.5
-    
+    Kb = -0.7
     
     u = Kp*dist
     w= Ka*alpha + Kb*dbeta
