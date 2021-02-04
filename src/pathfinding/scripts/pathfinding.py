@@ -86,7 +86,7 @@ if __name__ == "__main__":
 
 	map = generateMap(data)
 
-	prm = algo.PRM(map,100,10)
+	#prm = algo.PRM(map,100,10)
 
 	(trans,rot) = listener.lookupTransform('/map', '/base_link', rospy.Time(0))
 	rot_angle = quaternion_to_euler(rot[0],rot[1],rot[2],rot[3])
@@ -112,10 +112,10 @@ if __name__ == "__main__":
 
 		if(not atteint):
 
-			print("currpos :")
-			print(currpos)
-			print("nextpoint :")
-			print(nextpoint)
+			#print("currpos :")
+			#print(currpos)
+			#print("nextpoint :")
+			#print(nextpoint)
 
 
 			u , w = commande(currpos,nextpoint)
