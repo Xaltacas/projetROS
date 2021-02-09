@@ -14,7 +14,7 @@ import math
 import time
 import numpy as np
 import cv2
-import prm as algo
+import dca as algo
 from bresenham import collide
 from utils import *
 from commande import *
@@ -29,7 +29,7 @@ robot_pose = [0,0,0,0,0,0]
 
 def cb_newGoal(goalMessage):
 	global pointList
-	global prm
+	global dca
 
 	goalMessage = goalMessage.pose
 	
@@ -39,6 +39,7 @@ def cb_newGoal(goalMessage):
 	pixRP = m2pix((robot_pose[1],robot_pose[0]),origin,resolution)
 	pixGM = m2pix((goalMessage.position.y,goalMessage.position.x),origin,resolution)
 
+
 	print(pixRP)
 	print(pixGM)
 
@@ -46,15 +47,18 @@ def cb_newGoal(goalMessage):
 	pixRP = global2mini(pixRP,xmin, xmax, ymin , ymax)
 	pixGM = global2mini(pixGM,xmin, xmax, ymin , ymax)
 
+	pixRP = (pixRP[1],pixRP[0])
+	pixGM = (pixGM[1],pixGM[0])
+
 
 	print("position initiale : ",pixRP)
 	print("objectif :",pixGM)
 
 	
-	lpath = prm.path(pixRP,pixGM) ##### la la liste est inversee
+	lpath = dca.path(pixRP,pixGM) ##### la la liste est inversee
 
 	if(lpath == -1):
-		print("echec prm")
+		print("echec dca")
 		return
 
 	print("lpath prereverse",lpath)
@@ -63,7 +67,7 @@ def cb_newGoal(goalMessage):
 
 	print("lpath post reverse",lpath)
 
-	miniPath = smooth(lpath,prm.map,5)
+	miniPath = smooth(lpath,dca.map,5)
 
 	print("miniPath",miniPath)
 	
@@ -116,7 +120,7 @@ def generateMap(data):
 
     img = cv2.medianBlur(np.float32(img),5)
 
-    kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(30,30))
+    kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE,(20,20))
     final = cv2.dilate(img,kernel)
 
     return 255-final
@@ -154,11 +158,11 @@ if __name__ == "__main__":
 
 	map = generateMap(data)
 
-	global prm
+	global dca
 
-	prm = algo.PRM(map,100,10)
+	dca = algo.DCA(map,10,10)
 
-	print("prm ready")	
+	print("dca ready")	
 
 	(trans,rot) = listener.lookupTransform('/map', '/base_link', rospy.Time(0))
 	rot_angle = quaternion_to_euler(rot[0],rot[1],rot[2],rot[3])
@@ -244,6 +248,4 @@ if __name__ == "__main__":
 		rate.sleep()
 
 		
-
-
 

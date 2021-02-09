@@ -1,12 +1,14 @@
 import cv2
 import numpy as np
+#from bresenham import get_line
+from utils import smooth
 
 class DCA : 
-    def __init__(self, map, nb_cellules_X, nb_cellules_Y):
+    def __init__(self, mapp, nb_cellules_X, nb_cellules_Y):
 
-        self.map = map
-        self.width = map.shape[0]
-        self.height = map.shape[1]
+        self.map = mapp
+        self.width = mapp.shape[0]
+        self.height = mapp.shape[1]
         self.nb_cellules_X = nb_cellules_X
         self.nb_cellules_Y = nb_cellules_Y
         self.deltaX = int(float(self.width)/self.nb_cellules_X)
@@ -15,53 +17,54 @@ class DCA :
     def dca(self):
     
         
-	
-        cellules = [[0 for i in range(self.nb_cellules_X)] for j in range(self.nb_cellules_Y)]
-    
-        compteur = 0
-        for j in range(self.nb_cellules_Y):
-            for i in range(self.nb_cellules_X):
-                cellule = map[i*self.deltaX:(i+1)*self.deltaX,j*self.deltaY:(j+1)*self.deltaY]
-                
-                for ligne in cellule :
-                    for pixel in ligne :
-                        if (pixel == 0) :
-                            bol = False
+		print(self.map)
+		cellules = [[0 for i in range(self.nb_cellules_X)] for j in range(self.nb_cellules_Y)]
+
+		compteur = 0
+		for j in range(self.nb_cellules_Y):
+			for i in range(self.nb_cellules_X):
+				cellule = self.map[i*self.deltaX:(i+1)*self.deltaX,j*self.deltaY:(j+1)*self.deltaY]
+
+				for ligne in cellule :
+					for pixel in ligne :
+						if (pixel == 0) :
+							bol = False
                         
-                if (bol) :
-                        cellules[j][i] = "s" #Sol
-                else :
-                    cellules[j][i] = "o" #Objet
-                    compteur += 1
-                bol=True           
-        graph = [[] for i in range(self.nb_cellules_X*self.nb_cellules_Y)]
-    
-        compt = 0
-    
-        for y in range(self.nb_cellules_Y) :
-            for x in range(self.nb_cellules_X) :
-                
-                if (cellules[y][x] == "s"):
-                
-                    if (x!=0) :#Case de gauche 
-                        if (cellules[y][x-1] == "s"):                     
-                            graph[compt].append(compt-1) 
-                    
-                    if(x!=nb_cellules_X - 1) : #Case de droite
-                        if (cellules[y][x+1] == "s"): 
-                            graph[compt].append(compt+1)
-                
-                    if (y!=0) : #Case d'au dessus
-                        if (cellules[y-1][x] == "s"): #Case d'en dessous                
-                            graph[compt].append(compt-self.nb_cellules_X)
-                
-                    if(y!=nb_cellules_Y - 1): #Case d'en dessous
-                        if (cellules[y+1][x] == "s"): #Case d'au dessus                
-                            graph[compt].append(compt+self.nb_cellules_X)
-                 
-                compt += 1
-                
-            return graph;
+				if (bol) :
+					cellules[j][i] = "s" #Sol
+				else :
+					cellules[j][i] = "o" #Objet
+					compteur += 1
+				bol=True   
+		      
+		graph = [[] for i in range(self.nb_cellules_X*self.nb_cellules_Y)]
+
+		compt = 0
+
+		for y in range(self.nb_cellules_Y) :
+			for x in range(self.nb_cellules_X) :
+
+				if (cellules[y][x] == "s"):
+
+					if (x!=0) :#Case de gauche 
+						if (cellules[y][x-1] == "s"):                     
+							graph[compt].append(compt-1) 
+
+					if(x!=self.nb_cellules_X - 1) : #Case de droite
+						if (cellules[y][x+1] == "s"): 
+							graph[compt].append(compt+1)
+
+					if (y!=0) : #Case d'au dessus
+						if (cellules[y-1][x] == "s"): #Case d'en dessous                
+							graph[compt].append(compt-self.nb_cellules_X)
+
+					if(y!=self.nb_cellules_Y - 1): #Case d'en dessous
+						if (cellules[y+1][x] == "s"): #Case d'au dessus                
+							graph[compt].append(compt+self.nb_cellules_X)
+
+				compt += 1
+
+		return graph;
                 
     
     def convertir_position_cellule(self, posX, posY):
@@ -89,22 +92,27 @@ class DCA :
     def path(self, pos_depart, pos_arrivee) :
     
         
-        graph = dca(self)
-        start = convertir_position_cellule(self, pos_depart[0], pos_depart[1])
-        end = convertir_position_cellule(self, pos_arrivee[0], pos_arrivee[1])
-        res = pathfind_dca(self, start, end)
-    
-        return res
+		self.graph = self.dca()
+		start = self.convertir_position_cellule(pos_depart[0], pos_depart[1])
+		
+		end = self.convertir_position_cellule(pos_arrivee[0], pos_arrivee[1])
+		res = self.pathfind_dca(start, end)
+
+		return res
     
 
     def pathfind_dca(self, start, end):
-            if (graph[start] == [] or graph[end] == []):
+            if (self.graph[start] == []):
             
-                print("C'est pas possible")
+                print("C'est pas possible start")
                 return -1
                 
-                
-            nb_cellules = len(graph)
+            elif (self.graph[end] == []):
+            
+            	print("C'est pas possible end")
+                return -1
+                  
+            nb_cellules = len(self.graph)
             dist = [10000.0]*(nb_cellules)
             vset = [True]*(nb_cellules)
             prev = [-1]*(nb_cellules)
@@ -125,7 +133,7 @@ class DCA :
     
                     vset[u] = False;
     
-                for v in graph[u]:
+                for v in self.graph[u]:
     
                     if(abs(u-v)==1):
                     
@@ -153,11 +161,12 @@ class DCA :
         
         
             for k in range (len(path)) :
-                path[k] = convertir_num_cell_milieu_cell(self,path[k])
+                path[k] = self.convertir_num_cell_milieu_cell(path[k])
             
             
+
             return path
-        
+     
 def get_line(start, end):
     """Bresenham's Line Algorithm
     Produces a list of tuples from start and end
@@ -216,39 +225,15 @@ def get_line(start, end):
     return points
 
 
-    def collide(p1,p2,map):
-        for point in get_line(p1,p2):
-            x,y = point
-            if(map[x,y] == 0):
-                #print("collision en {} , {}".format(x,y))
-                return True
-        return False
+def collide(p1,p2,mapp):
+    for point in get_line(p1,p2):
+        x,y = point
+        if(mapp[x,y] == 0):
+            #print("collision en {} , {}".format(x,y))
+            return True
+    return False
             
-def smooth(path, map, div = 10):
-    _div = 1./div
-    subpath= [path[0]]
-    prevpoint = path[0]
-    for point in path[1:]:
-        for i in range(1,div+1):
-            diffx = point[0] - prevpoint[0]
-            diffy = point[1] - prevpoint[1]
 
-            subpath.append((int(prevpoint[0]+ diffx*i*_div),int(prevpoint[1]+ diffy*i*_div)))
-        prevpoint = point
-
-    res = [subpath[0]]
-    current = 0
-    point = 1
-    while True :
-        if(point == len(subpath)-1):
-            res.append(subpath[point])
-            break
-        if (collide(subpath[current],subpath[point],map)):
-            res.append(subpath[point-1])
-            current= point - 1
-        point += 1
-
-    return res
 
 """     
 def pathfind_dca(map,height, width, nb_cellules_X, nb_cellules_Y, pos_depart, pos_arrivee) :

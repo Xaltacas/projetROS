@@ -1,4 +1,5 @@
 import numpy as np
+from bresenham import collide
 
 def getAOI(data):
     height,width = data.shape
@@ -22,6 +23,21 @@ def getAOI(data):
 def mini2global(pos,xmin, xmax, ymin , ymax):
     return pos[0] + xmin, pos[1] +ymin
 
+def mini2globalList(path,xmin, xmax, ymin , ymax):
+    res = []
+    for pos in path:
+        res.append((pos[0] + xmin, pos[1] +ymin))
+
+    return res
+
+def reverse(list):
+    res = []
+    for item in list:
+        res = [item] + res
+
+    return res
+
+
 def global2mini(pos,xmin, xmax, ymin , ymax):
     if( pos[0]>xmax or pos[0]<xmin or pos[1]>ymax or pos[0]<ymin ):
         return None
@@ -29,6 +45,15 @@ def global2mini(pos,xmin, xmax, ymin , ymax):
 
 def pix2m(pos,origin,resolution):
     return origin[0] + (resolution * pos[0]), origin[1] + (resolution * pos[1])
+
+def pix2mlist(path,origin,resolution):
+    res = []
+    for pos in path:
+	res.append((origin[0] + (resolution * pos[0]), origin[1] + (resolution * pos[1])))
+    return res
+
+def m2pix(pos,origin,resolution):
+    return int((pos[0] - origin[0])/resolution), int((pos[1] - origin[1])/resolution)
 
 def smooth(path, map, div = 10):
     _div = 1./div
@@ -54,6 +79,18 @@ def smooth(path, map, div = 10):
             current= point - 1
         point += 1
 
+    subpath= [res[0]]
+    prevpoint = res[0]
+
+    '''
+    for point in res[1:]:
+        for i in range(1,div+1):
+            diffx = point[0] - prevpoint[0]
+            diffy = point[1] - prevpoint[1]
+
+            subpath.append((int(prevpoint[0]+ diffx*i*_div),int(prevpoint[1]+ diffy*i*_div)))
+        prevpoint = point
+    '''
     return res
 
 
