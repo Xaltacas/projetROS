@@ -6,6 +6,7 @@ def commande(pos_rob,point_objectif) :
     dy = point_objectif[1] - pos_rob[1] #distance entre le robot et le point projetee sur y
     dist = m.sqrt(dx**2 + dy**2) #distance euclidienne
     theta = normalize_angle(pos_rob[5])  #angle du robot
+
     #print(theta)
     beta = m.atan2(dy,dx) #angle du point par rapport au robot
     #print(beta)
@@ -13,6 +14,7 @@ def commande(pos_rob,point_objectif) :
     #print(alpha)
     beta_suivant = point_objectif[5]
     dbeta = normalize_angle(beta_suivant-beta)
+
     
     ## Gains ##
     mult = 3	
@@ -39,3 +41,4 @@ def normalize_angle(angle) : #Normalise un angle entre -pi et pi
         elif(angle < -m.pi) :
             angle += 2*m.pi 
     return angle
+
