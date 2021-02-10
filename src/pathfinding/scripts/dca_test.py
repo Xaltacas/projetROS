@@ -1,7 +1,7 @@
 import cv2
 import dca
 
-
+from pathfinding import smooth
 
 im = cv2.imread("5-final.jpg",cv2.IMREAD_GRAYSCALE)
 
@@ -14,7 +14,7 @@ height,width = im.shape
 
 #lpath = pathfind_dca(im,width, height,  width//10, height//10, (74,769),(215,157))
 
-algo = dca.DCA(map,150,100)
+algo = dca.DCA(im,100,100)
 
 lpath = algo.path((74,769),(215,157))
 

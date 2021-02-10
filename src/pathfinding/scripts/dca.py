@@ -2,13 +2,15 @@ import cv2
 import numpy as np
 #from bresenham import get_line
 from utils import smooth
+import math
+from bresenham import collide
 
 class DCA : 
-    def __init__(self, mapp, nb_cellules_X, nb_cellules_Y):
+    def __init__(self, map, nb_cellules_X, nb_cellules_Y):
 
-        self.map = mapp
-        self.width = mapp.shape[0]
-        self.height = mapp.shape[1]
+        self.map = map
+        self.width = map.shape[0]
+        self.height = map.shape[1]
         self.nb_cellules_X = nb_cellules_X
         self.nb_cellules_Y = nb_cellules_Y
         self.deltaX = int(float(self.width)/self.nb_cellules_X)
@@ -17,10 +19,12 @@ class DCA :
     def dca(self):
     
         
-		print(self.map)
+		
 		cellules = [[0 for i in range(self.nb_cellules_X)] for j in range(self.nb_cellules_Y)]
 
 		compteur = 0
+		bol=True   
+		      
 		for j in range(self.nb_cellules_Y):
 			for i in range(self.nb_cellules_X):
 				cellule = self.map[i*self.deltaX:(i+1)*self.deltaX,j*self.deltaY:(j+1)*self.deltaY]
@@ -63,7 +67,7 @@ class DCA :
 							graph[compt].append(compt+self.nb_cellules_X)
 
 				compt += 1
-
+		
 		return graph;
                 
     
@@ -93,10 +97,13 @@ class DCA :
     
         
 		self.graph = self.dca()
+		print(len(self.graph))
 		start = self.convertir_position_cellule(pos_depart[0], pos_depart[1])
-		
+		print('start =', start)
 		end = self.convertir_position_cellule(pos_arrivee[0], pos_arrivee[1])
+
 		res = self.pathfind_dca(start, end)
+
 
 		return res
     
@@ -131,7 +138,7 @@ class DCA :
                             low = dist[i]
                             u = i
     
-                    vset[u] = False;
+                vset[u] = False;
     
                 for v in self.graph[u]:
     
@@ -147,17 +154,19 @@ class DCA :
                         dist[v] =  alt
                         prev[v] = u
     
-            #print(prev)
+            
     
             cellule = end
             path = []
+            
+
             while True:
                 if (cellule == -1):
                     break
                 path.append(cellule)
                 cellule = prev[cellule]
     
-            #print(path)
+            
         
         
             for k in range (len(path)) :
@@ -166,137 +175,8 @@ class DCA :
             
 
             return path
-     
-def get_line(start, end):
-    """Bresenham's Line Algorithm
-    Produces a list of tuples from start and end
-
-    >>> points1 = get_line((0, 0), (3, 4))
-    >>> points2 = get_line((3, 4), (0, 0))
-    >>> assert(set(points1) == set(points2))
-    >>> print points1
-    [(0, 0), (1, 1), (1, 2), (2, 3), (3, 4)]
-    >>> print points2
-    [(3, 4), (2, 3), (1, 2), (1, 1), (0, 0)]
-    """
-    # Setup initial conditions
-    x1, y1 = start
-    x2, y2 = end
-    dx = x2 - x1
-    dy = y2 - y1
-
-    # Determine how steep the line is
-    is_steep = abs(dy) > abs(dx)
-
-    # Rotate line
-    if is_steep:
-        x1, y1 = y1, x1
-        x2, y2 = y2, x2
-
-    # Swap start and end points if necessary and store swap state
-    swapped = False
-    if x1 > x2:
-        x1, x2 = x2, x1
-        y1, y2 = y2, y1
-        swapped = True
-
-    # Recalculate differentials
-    dx = x2 - x1
-    dy = y2 - y1
-
-    # Calculate error
-    error = int(dx / 2.0)
-    ystep = 1 if y1 < y2 else -1
-
-    # Iterate over bounding box generating points between start and end
-    y = y1
-    points = []
-    for x in range(x1, x2 + 1):
-        coord = (y, x) if is_steep else (x, y)
-        points.append(coord)
-        error -= abs(dy)
-        if error < 0:
-            y += ystep
-            error += dx
-
-    # Reverse the list if the coordinates were swapped
-    if swapped:
-        points.reverse()
-    return points
 
 
-def collide(p1,p2,mapp):
-    for point in get_line(p1,p2):
-        x,y = point
-        if(mapp[x,y] == 0):
-            #print("collision en {} , {}".format(x,y))
-            return True
-    return False
-            
-
-
-"""     
-def pathfind_dca(map,height, width, nb_cellules_X, nb_cellules_Y, pos_depart, pos_arrivee) :
-
-    graph = dca(map,height, width, nb_cellules_X, nb_cellules_Y)
-    start = convertir_position_cellule(pos_depart)
-    end = convertir_position_cellule(pos_arrivee)
-    path = find_shortest_path(graph, start, end)
-    
-    return path
-
-    else :
-        pixel_init = map(x1,y1)
-        bol = True
-        for i in range(x1, x2+1) :
-            for j in range(y1, y2+1) :
-                if (map(i,j) != pixel_init) :
-                    bol = False
-                    break
-        if bol:
-            if map(x1,y1) == 255:
-                res.append(((x1, y1), (x2, y2), "s"))
-            elif map(x1,y1) == 0 :
-                res.append(((x1, y1), (x2, y2), "o"))     
-        else :     
-            x_inter = (x1 + x2)/2
-            y_inter = (y1 + y2)/2
-            dca_recursif(map, x1, y1, x_inter, y_inter)
-            dca_recursif(map, x_inter, y_inter, x2, y2)
-
-    return res
-        
-def centre_rectangles_sol(liste) :
-    res = []
-    for i in liste :
-        if i(3) == "s" :
-            res.append(((i(1,1)+i(2,1))/2,(i(1,2)+i(2,2))/2,"s"))
-	    elif i(3) == "o" :
-            res.append(((i(1,1)+i(2,1))/2,(i(1,2)+i(2,2))/2,"s"))
-    return res
-"""
-
-    
-              
-"""          
-def find_shortest_path(graph, start, end):
-
-
-        dist = {start: [start]}
-        
-        q = deque(start)
-        
-        while len(q):
-            at = q.popleft()
-            
-            for next in graph[at]:
-                if next not in dist:
-                    dist[next] = [dist[at],next]
-                    q.append(next)
-            
-        return dist.get(end)
-                
-"""
 
 
 

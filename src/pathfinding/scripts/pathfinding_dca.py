@@ -47,15 +47,15 @@ def cb_newGoal(goalMessage):
 	pixRP = global2mini(pixRP,xmin, xmax, ymin , ymax)
 	pixGM = global2mini(pixGM,xmin, xmax, ymin , ymax)
 
-	pixRP = (pixRP[1],pixRP[0])
-	pixGM = (pixGM[1],pixGM[0])
+	pixRP = (pixRP[0],pixRP[1])
+	pixGM = (pixGM[0],pixGM[1])
 
 
-	print("position initiale : ",pixRP)
-	print("objectif :",pixGM)
+	print('position initiale : ',pixRP)
+	print('objectif :',pixGM)
 
 	
-	lpath = dca.path(pixRP,pixGM) ##### la la liste est inversee
+	lpath = dca.path(pixRP,pixGM) 
 
 	if(lpath == -1):
 		print("echec dca")
@@ -160,7 +160,7 @@ if __name__ == "__main__":
 
 	global dca
 
-	dca = algo.DCA(map,10,10)
+	dca = algo.DCA(map,50,50)
 
 	print("dca ready")	
 
